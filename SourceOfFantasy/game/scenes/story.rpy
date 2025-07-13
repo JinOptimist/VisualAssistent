@@ -9,7 +9,5 @@ init python:
 # === Главное сюжетное хранилище. Здесь будут храниться все сцены и диалоги основного сюжета. ===
 
 label main_story:
-    jump c0_с01_intro
+#    jump c0_с01_intro
     jump c0_c02_create
-
-    narrator "КОНЕЦ"
