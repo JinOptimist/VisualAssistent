@@ -39,51 +39,70 @@ label battle_scene_troll:
 # Основной боевой цикл
 label battle_loop:
     scene bg BG
-    
-    # Показываем статус боя
-    "=== СТАТУС БОЯ ==="
-    "Ваше здоровье: [battle_system.player_hp]/[battle_system.player_max_hp]"
-    "Ваша мана: [battle_system.player_mp]/[battle_system.player_max_mp]"
-    "Ваш щит: [battle_system.player_shield]"
-    ""
-    "[battle_system.enemy_name] здоровье: [battle_system.enemy_hp]/[battle_system.enemy_max_hp]"
-    "[battle_system.enemy_name] мана: [battle_system.enemy_mp]/[battle_system.enemy_max_mp]"
-    "[battle_system.enemy_name] щит: [battle_system.enemy_shield]"
-    ""
-    
-    # Проверяем, не закончен ли бой
+    show screen battle_screen
+    $ renpy.pause(0.1, hard=True)
     if battle_system.is_battle_over():
+        hide screen battle_screen
         jump battle_end
-    
-    # Выбор действия игрока
-    menu:
-        "Выберите действие:"
-        "Атаковать":
-            python:
-                result = battle_system.player_attack()
-            "[result]"
-            jump enemy_turn
-        "Защищаться":
-            python:
-                result = battle_system.player_defend()
-            "[result]"
-            jump enemy_turn
-        "Использовать предмет":
-            jump use_item_in_battle
-        "Попытаться сбежать":
-            "Вы пытаетесь сбежать..."
-            if renpy.random.randint(1, 100) <= 50:
-                "Успешно! Вы сбежали от боя!"
-                jump battle_escape
-            else:
-                "Неудача! Противник не дает вам сбежать!"
-                jump enemy_turn
+    $ renpy.pause(9999, hard=True) # Ожидание действия игрока через экран
+
+# Действия игрока (вызываются кнопками на экране)
+label player_action_attack:
+    $ result = battle_system.player_attack()
+    $ renpy.notify(result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
+    jump enemy_turn
+
+label player_action_defend:
+    $ result = battle_system.player_defend()
+    $ renpy.notify(result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
+    jump enemy_turn
+
+label player_action_shield:
+    $ result = battle_system.player_defend() # Если есть отдельная функция для щита, заменить
+    $ renpy.notify(result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
+    jump enemy_turn
+
+label player_action_heal:
+    $ result = battle_system.add_health("player", 2) # Если есть отдельная функция для лечения, заменить
+    $ renpy.notify("Вы восстановили здоровье: %d" % result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
+    jump enemy_turn
+
+label player_action_escape:
+    $ import renpy
+    $ escape_success = renpy.random.randint(1, 100) <= 50
+    if escape_success:
+        $ renpy.notify("Успешно! Вы сбежали от боя!")
+        hide screen battle_screen
+        jump battle_escape
+    else:
+        $ renpy.notify("Неудача! Противник не дает вам сбежать!")
+        jump enemy_turn
+
+label player_action_use_item:
+    # Здесь можно реализовать выбор предмета через отдельный экран или простое меню
+    $ result = "Пока не реализовано: выбор и использование предмета в бою"
+    $ renpy.notify(result)
+    jump enemy_turn
 
 # Ход противника
 label enemy_turn:
-    python:
-        result = battle_system.enemy_turn()
-    "[result]"
+    $ result = battle_system.enemy_turn()
+    $ renpy.notify(result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
     jump battle_loop
 
 # Использование предмета в бою
@@ -108,26 +127,14 @@ label use_item_in_battle:
 
 # Конец боя
 label battle_end:
-    python:
-        result = battle_system.get_battle_result()
+    hide screen battle_screen
+    $ result = battle_system.get_battle_result()
     
     if result == "victory":
         "Победа! Вы победили [battle_system.enemy_name]!"
-        python:
-            # Награды за победу
-            exp_gain = 20
-            gold_gain = 50
-            progression_system.gain_exp(exp_gain)
-            inventory_system.add_gold(gold_gain)
-            progression_system.gain_skill_exp("sword_mastery", 10)
-            # Проверяем достижения
-            if not progression_system.achievements["first_victory"]["unlocked"]:
-                achievement = progression_system.unlock_achievement("first_victory")
-                if achievement:
-                    renpy.notify(achievement)
-        "Получено опыта: [exp_gain]"
+        $ gold_gain = 50
+        $ inventory_system.add_gold(gold_gain)
         "Получено золота: [gold_gain]"
-        "Навык владения мечом улучшен!"
     elif result == "defeat":
         "Поражение! Вы проиграли бой..."
         "Но не отчаивайтесь, в следующий раз повезет больше!"
@@ -151,9 +158,7 @@ label after_battle:
 # Побег из боя
 label battle_escape:
     "Вы успешно сбежали от боя!"
-    "Но ваша репутация немного пострадала..."
-    python:
-        progression_system.player_reputation = max(-10, progression_system.player_reputation - 1)
+    "Но ваша честь немного пострадала..."
     jump world_map
 
 # Меню инвентаря

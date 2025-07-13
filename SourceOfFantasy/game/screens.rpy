@@ -1650,13 +1650,13 @@ screen battle_screen():
                 
                 # Статистика игрока
                 text "Игрок" xalign 0.5 size 24
-                text "Жизни: [player_hp]/[player_max_hp]" xalign 0.5
-                text "Мана: [player_mp]/[player_max_mp]" xalign 0.5
-                if player_shield > 0:
-                    text "Щит: [player_shield]" xalign 0.5 color "#00ff00"
-                if player_blood_overflow:
+                text "Жизни: [battle_system.player_hp]/[battle_system.player_max_hp]" xalign 0.5
+                text "Мана: [battle_system.player_mp]/[battle_system.player_max_mp]" xalign 0.5
+                if battle_system.player_shield > 0:
+                    text "Щит: [battle_system.player_shield]" xalign 0.5 color "#00ff00"
+                if battle_system.player_blood_overflow:
                     text "Переполнение кровью!" xalign 0.5 color "#ff0000" size 16
-                if player_mana_overflow:
+                if battle_system.player_mana_overflow:
                     text "Переполнение маной!" xalign 0.5 color "#ff0000" size 16
                 
                 # Кнопки действий
@@ -1664,6 +1664,8 @@ screen battle_screen():
                 textbutton "Защита" action Jump("player_action_defend") xalign 0.5
                 textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
                 textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
+                textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
+                textbutton "Использовать предмет" action Jump("player_action_use_item") xalign 0.5
         
         # Правая сторона - противник
         frame:
@@ -1682,14 +1684,14 @@ screen battle_screen():
                 add "images/Heroes/Enemy01.jpg" xsize 200 ysize 200 xalign 0.5
                 
                 # Статистика противника
-                text "[enemy_name]" xalign 0.5 size 24
-                text "Жизни: [enemy_hp]/[enemy_max_hp]" xalign 0.5
-                text "Мана: [enemy_mp]/[enemy_max_mp]" xalign 0.5
-                if enemy_shield > 0:
-                    text "Щит: [enemy_shield]" xalign 0.5 color "#00ff00"
-                if enemy_blood_overflow:
+                text "[battle_system.enemy_name]" xalign 0.5 size 24
+                text "Жизни: [battle_system.enemy_hp]/[battle_system.enemy_max_hp]" xalign 0.5
+                text "Мана: [battle_system.enemy_mp]/[battle_system.enemy_max_mp]" xalign 0.5
+                if battle_system.enemy_shield > 0:
+                    text "Щит: [battle_system.enemy_shield]" xalign 0.5 color "#00ff00"
+                if battle_system.enemy_blood_overflow:
                     text "Переполнение кровью!" xalign 0.5 color "#ff0000" size 16
-                if enemy_mana_overflow:
+                if battle_system.enemy_mana_overflow:
                     text "Переполнение маной!" xalign 0.5 color "#ff0000" size 16
         
         # Центральная информация
@@ -1701,3 +1703,119 @@ screen battle_screen():
             background Frame("gui/frame.png", 10, 10)
             
             text "Ваш ход! Выберите действие:" xalign 0.5 yalign 0.5 size 20
+
+## Экран чата ###############################################################
+##
+## Экран для отображения чата в стиле мессенджера
+
+screen chat_screen():
+    zorder 50
+    
+    frame:
+        xfill True
+        yfill True
+        background "#1a1a1a"  # Темный фон как в мессенджерах
+        
+        # Верхняя панель с информацией о чате
+        frame:
+            xfill True
+            ysize 80
+            background "#2d2d2d"
+            
+            hbox:
+                xalign 0.5
+                yalign 0.5
+                spacing 20
+                
+                # Аватарка
+                frame:
+                    xsize 50
+                    ysize 50
+                    background "#0099cc"
+                    text "💬" xalign 0.5 yalign 0.5 size 30
+                
+                # Название чата
+                text "Команда разработки" xalign 0.5 yalign 0.5 size 24 color "#ffffff"
+        
+        # Область сообщений
+        frame:
+            xfill True
+            ypos 80
+            ysize 800
+            background "#1a1a1a"
+            
+            viewport:
+                id "chat_viewport"
+                scrollbars "vertical"
+                mousewheel True
+                draggable True
+                yinitial 1.0
+                frame:
+                    background None
+                    padding (20, 20, 20, 20)
+                    vbox:
+                        id "chat_messages"
+                        spacing 10
+                        xfill True
+                        # Здесь будут отображаться сообщения
+                        for message in chat_system.messages:
+                            frame:
+                                xsize 600
+                                background message.bubble_color
+                                padding (15, 10, 15, 10)
+                                xalign message.alignment
+                                
+                                vbox:
+                                    spacing 5
+                                    # Имя отправителя
+                                    text message.sender_name:
+                                        size 16
+                                        color message.name_color
+                                        bold True
+                                    # Текст сообщения
+                                    text message.text:
+                                        size 18
+                                        color message.text_color
+                                        xsize 550
+                                    # Время отправки
+                                    text message.time:
+                                        size 12
+                                        color "#888888"
+                                        xalign 1.0
+                        null id "end_of_chat"
+                        if chat_system.typing_active:
+                            hbox:
+                                xalign chat_system.typing_side
+                                spacing 5
+                                text "●" at typing_dot(0.0) size 20 color "#0099cc"
+                                text "●" at typing_dot(0.2) size 20 color "#0099cc"
+                                text "●" at typing_dot(0.4) size 20 color "#0099cc"
+
+# Анимация точек печати
+transform typing_dot(delay):
+    alpha 0.3
+    pause delay
+    block:
+        linear 0.3 alpha 1.0
+        pause 0.3
+        linear 0.3 alpha 0.3
+        pause 0.3
+        repeat
+
+# Стили для чата
+style chat_message_frame:
+    background "#0099cc"
+    padding (15, 10, 15, 10)
+
+style chat_message_text:
+    color "#ffffff"
+    size 18
+
+style chat_sender_name:
+    color "#ffffff"
+    size 16
+    bold True
+
+style chat_time:
+    color "#888888"
+    size 12

@@ -88,14 +88,7 @@ init python:
                     "value": 25,
                     "description": "Восстанавливает ману"
                 },
-                "love_potion": {
-                    "name": "Зелье любви",
-                    "type": "consumable",
-                    "rarity": "rare",
-                    "seduction_bonus": 10,
-                    "value": 100,
-                    "description": "Увеличивает шанс успеха соблазнения"
-                }
+
             }
         
         def add_item(self, item_id, quantity=1):
@@ -148,11 +141,7 @@ init python:
                     self.remove_item(item_id, 1)
                     return f"Мана восстановлена на {mana_amount}!"
                 
-                elif item_id == "love_potion":
-                    # Временно увеличиваем харизму для соблазнения
-                    seduction_system.player_charm += item_data["seduction_bonus"]
-                    self.remove_item(item_id, 1)
-                    return f"Харизма временно увеличена на {item_data['seduction_bonus']}!"
+
             
             elif item_type in ["weapon", "armor", "accessory"]:
                 # Экипируем предмет

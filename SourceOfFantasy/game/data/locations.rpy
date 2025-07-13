@@ -6,49 +6,44 @@ init python:
         "town_square": {
             "name": "Городская площадь",
             "description": "Центральная площадь города, где собираются торговцы и путешественники.",
-            "available_actions": ["trade", "seduction", "quest"],
-            "connected_locations": ["market", "tavern", "training_ground"]
+            "available_actions": ["trade", "quest"],
+            "connected_locations": ["market", "tavern"]
         },
         "market": {
             "name": "Рынок",
             "description": "Шумный рынок, где можно купить и продать различные товары.",
-            "available_actions": ["trade", "seduction"],
+            "available_actions": ["trade"],
             "connected_locations": ["town_square", "merchant_shop"]
         },
         "tavern": {
             "name": "Таверна",
             "description": "Уютная таверна, где можно отдохнуть и услышать последние новости.",
-            "available_actions": ["rest", "seduction", "quest"],
+            "available_actions": ["rest", "quest"],
             "connected_locations": ["town_square", "inn"]
         },
-        "training_ground": {
-            "name": "Тренировочная площадка",
-            "description": "Место, где воины тренируют свои навыки и изучают новые техники.",
-            "available_actions": ["training", "quest"],
-            "connected_locations": ["town_square", "arena"]
-        },
+
         "forest": {
             "name": "Темный лес",
             "description": "Таинственный лес, полный опасностей и сокровищ.",
-            "available_actions": ["explore", "battle", "quest"],
+            "available_actions": ["battle", "quest"],
             "connected_locations": ["town_square", "cave"]
         },
         "cave": {
             "name": "Пещера",
             "description": "Мрачная пещера, где обитают опасные существа.",
-            "available_actions": ["explore", "battle"],
+            "available_actions": ["battle"],
             "connected_locations": ["forest"]
         },
         "castle": {
             "name": "Замок",
             "description": "Величественный замок, резиденция местной знати.",
-            "available_actions": ["seduction", "quest"],
+            "available_actions": ["quest"],
             "connected_locations": ["town_square"]
         },
         "merchant_shop": {
             "name": "Лавка торговца",
             "description": "Небольшая лавка с различными товарами.",
-            "available_actions": ["trade", "seduction"],
+            "available_actions": ["trade"],
             "connected_locations": ["market"]
         },
         "inn": {
@@ -59,9 +54,9 @@ init python:
         },
         "arena": {
             "name": "Арена",
-            "description": "Место для боевых состязаний и тренировок.",
-            "available_actions": ["battle", "training"],
-            "connected_locations": ["training_ground"]
+            "description": "Место для боевых состязаний.",
+            "available_actions": ["battle"],
+            "connected_locations": ["town_square"]
         }
     }
     
