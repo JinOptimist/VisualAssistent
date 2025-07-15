@@ -10,4 +10,5 @@ init python:
 
 label main_story:
 #    jump c0_с01_intro
-    jump c0_c02_create
+#    jump c0_c02_create
+    jump c1_academy_intro

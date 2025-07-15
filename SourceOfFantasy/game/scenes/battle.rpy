@@ -39,6 +39,20 @@ label battle_scene_troll:
 # Основной боевой цикл
 label battle_loop:
     scene bg BG
+    
+    # Применяем эффекты статусов в начале хода
+    python:
+        # Применяем эффекты переполнения
+        battle_system.apply_overflow_effects("player")
+        battle_system.check_overflow_status("player")
+        
+        # Применяем эффект "Атака Потоком" если активен
+        if battle_system.player_stream_attack_is_active:
+            result = battle_system.apply_stream_attack_effect("player")
+            if result:
+                renpy.notify(result)
+            battle_system.check_stream_attack_status("player")
+    
     show screen battle_screen
     $ renpy.pause(0.1, hard=True)
     if battle_system.is_battle_over():
@@ -47,8 +61,16 @@ label battle_loop:
     $ renpy.pause(9999, hard=True) # Ожидание действия игрока через экран
 
 # Действия игрока (вызываются кнопками на экране)
-label player_action_attack:
-    $ result = battle_system.player_attack()
+label player_action_projectile_attack:
+    $ result = battle_system.player_projectile_attack()
+    $ renpy.notify(result)
+    if battle_system.is_battle_over():
+        hide screen battle_screen
+        jump battle_end
+    jump enemy_turn
+
+label player_action_stream_attack:
+    $ result = battle_system.player_stream_attack()
     $ renpy.notify(result)
     if battle_system.is_battle_over():
         hide screen battle_screen
@@ -64,7 +86,7 @@ label player_action_defend:
     jump enemy_turn
 
 label player_action_shield:
-    $ result = battle_system.player_defend() # Если есть отдельная функция для щита, заменить
+    $ result = battle_system.player_shield_spell()
     $ renpy.notify(result)
     if battle_system.is_battle_over():
         hide screen battle_screen
@@ -72,11 +94,16 @@ label player_action_shield:
     jump enemy_turn
 
 label player_action_heal:
-    $ result = battle_system.add_health("player", 2) # Если есть отдельная функция для лечения, заменить
-    $ renpy.notify("Вы восстановили здоровье: %d" % result)
+    $ result = battle_system.player_heal()
+    $ renpy.notify(result)
     if battle_system.is_battle_over():
         hide screen battle_screen
         jump battle_end
+    jump enemy_turn
+
+label player_action_continue_stream:
+    # Просто переходим к ходу противника, так как эффект "Атака Потоком" уже применен в начале хода
+    $ renpy.notify("Продолжаете атаку потоком...")
     jump enemy_turn
 
 label player_action_escape:
@@ -98,8 +125,23 @@ label player_action_use_item:
 
 # Ход противника
 label enemy_turn:
-    $ result = battle_system.enemy_turn()
-    $ renpy.notify(result)
+    # Применяем эффекты статусов противника
+    python:
+        # Применяем эффекты переполнения
+        battle_system.apply_overflow_effects("enemy")
+        battle_system.check_overflow_status("enemy")
+        
+        # Применяем эффект "Атака Потоком" если активен
+        if battle_system.enemy_stream_attack_is_active:
+            result = battle_system.apply_stream_attack_effect("enemy")
+            if result:
+                renpy.notify(result)
+            battle_system.check_stream_attack_status("enemy")
+        else:
+            # Обычный ход противника
+            result = battle_system.enemy_turn()
+            renpy.notify(result)
+    
     if battle_system.is_battle_over():
         hide screen battle_screen
         jump battle_end

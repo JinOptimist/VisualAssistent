@@ -1658,14 +1658,22 @@ screen battle_screen():
                     text "Переполнение кровью!" xalign 0.5 color "#ff0000" size 16
                 if battle_system.player_mana_overflow:
                     text "Переполнение маной!" xalign 0.5 color "#ff0000" size 16
+                if battle_system.player_stream_attack_is_active:
+                    text "Атака Потоком! ([battle_system.player_stream_attack_turns] ходов)" xalign 0.5 color "#00ffff" size 16
                 
                 # Кнопки действий
-                textbutton "Атаковать" action Jump("player_action_attack") xalign 0.5
-                textbutton "Защита" action Jump("player_action_defend") xalign 0.5
-                textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
-                textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
-                textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
-                textbutton "Использовать предмет" action Jump("player_action_use_item") xalign 0.5
+                if battle_system.player_stream_attack_is_active:
+                    # Если активна "Атака Потоком", показываем только кнопку продолжения
+                    textbutton "Продолжить атаку потоком" action Jump("player_action_continue_stream") xalign 0.5
+                else:
+                    # Обычные кнопки действий
+                    textbutton "Атака снарядом (1 MP)" action Jump("player_action_projectile_attack") xalign 0.5
+                    textbutton "Атака потоком (2 MP)" action Jump("player_action_stream_attack") xalign 0.5
+                    textbutton "Защита" action Jump("player_action_defend") xalign 0.5
+                    textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
+                    textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
+                    textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
+                    textbutton "Использовать предмет" action Jump("player_action_use_item") xalign 0.5
         
         # Правая сторона - противник
         frame:
@@ -1693,6 +1701,8 @@ screen battle_screen():
                     text "Переполнение кровью!" xalign 0.5 color "#ff0000" size 16
                 if battle_system.enemy_mana_overflow:
                     text "Переполнение маной!" xalign 0.5 color "#ff0000" size 16
+                if battle_system.enemy_stream_attack_is_active:
+                    text "Атака Потоком! ([battle_system.enemy_stream_attack_turns] ходов)" xalign 0.5 color "#00ffff" size 16
         
         # Центральная информация
         frame:
@@ -1702,7 +1712,20 @@ screen battle_screen():
             ysize 100
             background Frame("gui/frame.png", 10, 10)
             
-            text "Ваш ход! Выберите действие:" xalign 0.5 yalign 0.5 size 20
+            if battle_system.player_stream_attack_is_active:
+                text "Атака Потоком активна! Нажмите 'Продолжить' или кликните в любое место:" xalign 0.5 yalign 0.5 size 20
+            else:
+                text "Ваш ход! Выберите действие:" xalign 0.5 yalign 0.5 size 20
+        
+        # Невидимая кнопка для клика в любое место при активной атаке потоком
+        if battle_system.player_stream_attack_is_active:
+            button:
+                xfill True
+                yfill True
+                background None
+                action Jump("player_action_continue_stream")
+                hovered None
+                unhovered None
 
 ## Экран чата ###############################################################
 ##

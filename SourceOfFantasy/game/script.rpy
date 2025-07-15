@@ -4,6 +4,9 @@ image bg BG = "images/BGs/BG.jpg"
 
 # The script of the game goes in this file.
 
+# Инициализация систем
+# battle_system создается в game/systems/battle_system.rpy
+
 # Declare characters used by this game. The color argument colorizes the
 # name of the character.s
 

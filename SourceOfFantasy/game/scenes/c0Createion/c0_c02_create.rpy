@@ -79,6 +79,6 @@ label c0_c03_character_ready:
     
     "Теперь вы можете начать свое приключение!"
     # Здесь можно добавить переход к следующей сцене
-    # jump next_scene 
+    jump c1_academy_intro 
 
     
