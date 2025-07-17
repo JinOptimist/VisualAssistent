@@ -65,7 +65,7 @@ class TraitsSystem:
         self.selected_traits = []
         
         # Начальные очки развития
-        self.development_points = 10
+        self.development_points = 50
     
     def get_trait(self, trait_id):
         """Возвращает данные особенности по ID"""
@@ -140,7 +140,7 @@ class TraitsSystem:
     def reset_selection(self):
         """Сбрасывает выбор особенностей"""
         self.selected_traits = []
-        self.development_points = 10
+        self.development_points = 50
     
     def confirm_selection(self):
         """Подтверждает выбор особенностей"""
@@ -178,7 +178,7 @@ def test_traits_system():
     print("\nТест 2: Проверка начальных очков")
     points = traits_system.get_development_points()
     print(f"Начальные очки развития: {points}")
-    assert points == 10, f"Ожидалось 10 очков, получено {points}"
+    assert points == 50, f"Ожидалось 50 очков, получено {points}"
     print("✓ Начальные очки корректны")
     
     # Тест 3: Выбор положительной особенности
@@ -189,7 +189,7 @@ def test_traits_system():
     
     points_after = traits_system.get_development_points()
     print(f"Очки после выбора: {points_after}")
-    assert points_after == 8, f"Ожидалось 8 очков, получено {points_after}"
+    assert points_after == 48, f"Ожидалось 48 очков, получено {points_after}"
     print("✓ Положительная особенность выбрана корректно")
     
     # Тест 4: Выбор отрицательной особенности
@@ -200,8 +200,8 @@ def test_traits_system():
     
     points_after_negative = traits_system.get_development_points()
     print(f"Очки после выбора отрицательной: {points_after_negative}")
-    # После выбора "Дохляк" (-2) очки должны вернуться к 10 (8 + 2 = 10)
-    assert points_after_negative == 10, f"Ожидалось 10 очков, получено {points_after_negative}"
+    # После выбора "Дохляк" (-2) очки должны вернуться к 50 (48 + 2 = 50)
+    assert points_after_negative == 50, f"Ожидалось 50 очков, получено {points_after_negative}"
     print("✓ Отрицательная особенность выбрана корректно")
     
     # Тест 4.1: Проверка выбора отрицательной особенности с чистого листа
@@ -213,8 +213,8 @@ def test_traits_system():
     
     points_after_negative_clean = traits_system.get_development_points()
     print(f"Очки после выбора отрицательной с чистого листа: {points_after_negative_clean}")
-    # После выбора "Дохляк" (-2) с 10 очков должно стать 12 (10 + 2 = 12)
-    assert points_after_negative_clean == 12, f"Ожидалось 12 очков, получено {points_after_negative_clean}"
+    # После выбора "Дохляк" (-2) с 50 очков должно стать 52 (50 + 2 = 52)
+    assert points_after_negative_clean == 52, f"Ожидалось 52 очка, получено {points_after_negative_clean}"
     print("✓ Отрицательная особенность с чистого листа работает корректно")
     
     # Тест 5: Проверка выбранных особенностей
@@ -235,14 +235,20 @@ def test_traits_system():
     
     points_after_deselect = traits_system.get_development_points()
     print(f"Очки после отмены: {points_after_deselect}")
-    # После отмены "Дохляк" (-2) очки должны вернуться к 10 (12 - 2 = 10)
-    assert points_after_deselect == 10, f"Ожидалось 10 очков, получено {points_after_deselect}"
+    # После отмены "Дохляк" (-2) очки должны вернуться к 50 (52 - 2 = 50)
+    assert points_after_deselect == 50, f"Ожидалось 50 очков, получено {points_after_deselect}"
     print("✓ Отмена выбора работает корректно")
     
     # Тест 7: Проверка недостатка очков
     print("\nТест 7: Проверка недостатка очков")
-    # Пытаемся выбрать дорогую особенность
-    success, message = traits_system.select_trait("absolute_polyglot")
+    # Сначала выбираем несколько особенностей, чтобы потратить очки
+    traits_system.select_trait("strongman")  # -2 очка
+    traits_system.select_trait("acrobat")    # -2 очка
+    traits_system.select_trait("smart_guy")  # -2 очка
+    traits_system.select_trait("lucky_guy")  # -2 очка
+    # Теперь у нас 50 - 8 = 42 очка
+    # Пытаемся выбрать дорогую особенность, которая стоит больше оставшихся очков
+    success, message = traits_system.select_trait("absolute_polyglot")  # 50 очков
     print(f"Результат: {message}")
     assert not success, "Должна быть ошибка недостатка очков"
     print("✓ Проверка недостатка очков работает")
@@ -256,7 +262,7 @@ def test_traits_system():
     print(f"Очки после сброса: {points_after_reset}")
     print(f"Выбрано особенностей после сброса: {len(selected_after_reset)}")
     
-    assert points_after_reset == 10, f"Ожидалось 10 очков, получено {points_after_reset}"
+    assert points_after_reset == 50, f"Ожидалось 50 очков, получено {points_after_reset}"
     assert len(selected_after_reset) == 0, f"Ожидалось 0 особенностей, выбрано {len(selected_after_reset)}"
     print("✓ Сброс выбора работает корректно")
     
@@ -297,8 +303,8 @@ def test_traits_system():
     print(f"Очки после 'Силач': {points_after_strongman}")
     
     # Проверяем итоговое количество очков
-    # Начальные 10 + 2 (Дохляк) + 2 (Балбес) - 2 (Силач) = 12
-    assert points_after_strongman == 12, f"Ожидалось 12 очков, получено {points_after_strongman}"
+    # Начальные 50 + 2 (Дохляк) + 2 (Балбес) - 2 (Силач) = 52
+    assert points_after_strongman == 52, f"Ожидалось 52 очка, получено {points_after_strongman}"
     print("✓ Комбинированный тест пройден")
     
     print("\nВсе тесты пройдены успешно! ✓")

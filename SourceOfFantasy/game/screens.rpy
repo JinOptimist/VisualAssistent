@@ -1637,7 +1637,7 @@ screen battle_screen():
             xalign 0.1
             yalign 0.5
             xsize 300
-            ysize 400
+            ysize 600
             background Frame("gui/frame.png", 10, 10)
             
             vbox:
@@ -1667,20 +1667,27 @@ screen battle_screen():
                     textbutton "Продолжить атаку потоком" action Jump("player_action_continue_stream") xalign 0.5
                 else:
                     # Обычные кнопки действий
-                    textbutton "Атака снарядом (1 MP)" action Jump("player_action_projectile_attack") xalign 0.5
-                    textbutton "Атака потоком (2 MP)" action Jump("player_action_stream_attack") xalign 0.5
-                    textbutton "Защита" action Jump("player_action_defend") xalign 0.5
-                    textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
-                    textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
-                    textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
-                    textbutton "Использовать предмет" action Jump("player_action_use_item") xalign 0.5
+                    viewport:
+                        ysize 270
+                        scrollbars "vertical"
+                        mousewheel True
+                        vbox:
+                            spacing 5
+                            xalign 0.5
+                            textbutton "Атака снарядом (1 MP)" action Jump("player_action_projectile_attack") xalign 0.5
+                            textbutton "Атака потоком (2 MP)" action Jump("player_action_stream_attack") xalign 0.5
+                            textbutton "Защита" action Jump("player_action_defend") xalign 0.5
+                            textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
+                            textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
+                            textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
+                            textbutton "Использовать предмет" action Jump("player_action_use_item") xalign 0.5
         
         # Правая сторона - противник
         frame:
             xalign 0.9
             yalign 0.5
             xsize 300
-            ysize 400
+            ysize 600
             background Frame("gui/frame.png", 10, 10)
             
             vbox:

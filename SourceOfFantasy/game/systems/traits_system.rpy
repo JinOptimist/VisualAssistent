@@ -60,7 +60,7 @@ init python:
             self.selected_traits = []
             
             # Начальные очки развития
-            self.development_points = 10
+            self.development_points = 50
         
         def get_trait(self, trait_id):
             """Возвращает данные особенности по ID"""
@@ -168,7 +168,7 @@ init python:
         def reset_selection(self):
             """Сбрасывает выбор особенностей"""
             self.selected_traits = []
-            self.development_points = 10
+            self.development_points = 50
         
         def confirm_selection(self):
             """Подтверждает выбор особенностей"""
