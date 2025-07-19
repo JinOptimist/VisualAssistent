@@ -19,7 +19,15 @@ define narrator = Character(None)
 
 label start:
     narrator "Добро пожаловать в игру Source of Fantasy"
-    jump main_story
+    
+    menu:
+        "Выберите сценарий:"
+        "Основной сюжет":
+            jump main_story
+        "Тест боевой системы":
+            jump battle_scene_goblin
+        "Тест инвентаря в бою":
+            jump test_inventory_battle
     
     return
 

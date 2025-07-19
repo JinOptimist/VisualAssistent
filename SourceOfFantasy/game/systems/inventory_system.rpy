@@ -122,7 +122,9 @@ init python:
         def use_item(self, item_id):
             """Использует предмет"""
             if item_id not in self.inventory:
-                return "Предмет не найден в инвентаре!"
+                result = "Предмет не найден в инвентаре!"
+                renpy.notify(result)
+                return result
             
             item_data = self.all_items[item_id]
             item_type = item_data["type"]
@@ -131,28 +133,49 @@ init python:
                 # Используем расходник
                 if item_id == "health_potion":
                     heal_amount = item_data["heal"]
-                    battle_system.add_health("player", heal_amount)
+                    actual_heal = battle_system.add_health("player", heal_amount)
                     self.remove_item(item_id, 1)
-                    return f"Здоровье восстановлено на {heal_amount}!"
+                    
+                    if battle_system.player_blood_overflow:
+                        result = f"Здоровье восстановлено на {actual_heal}! Переполнение кровью!"
+                    else:
+                        result = f"Здоровье восстановлено на {actual_heal}!"
+                    renpy.notify(result)
+                    return result
                 
                 elif item_id == "mana_potion":
                     mana_amount = item_data["mana"]
-                    battle_system.add_mana("player", mana_amount)
+                    actual_mana = battle_system.add_mana("player", mana_amount)
                     self.remove_item(item_id, 1)
-                    return f"Мана восстановлена на {mana_amount}!"
+                    
+                    if battle_system.player_mana_overflow:
+                        result = f"Мана восстановлена на {actual_mana}! Переполнение маной!"
+                    else:
+                        result = f"Мана восстановлена на {actual_mana}!"
+                    renpy.notify(result)
+                    return result
                 
+                else:
+                    self.remove_item(item_id, 1)
+                    result = f"Использован предмет: {item_data['name']}"
+                    renpy.notify(result)
+                    return result
 
             
             elif item_type in ["weapon", "armor", "accessory"]:
                 # Экипируем предмет
                 return self.equip_item(item_id)
             
-            return "Этот предмет нельзя использовать!"
+            result = "Этот предмет нельзя использовать!"
+            renpy.notify(result)
+            return result
         
         def equip_item(self, item_id):
             """Экипирует предмет"""
             if item_id not in self.inventory:
-                return "Предмет не найден в инвентаре!"
+                result = "Предмет не найден в инвентаре!"
+                renpy.notify(result)
+                return result
             
             item_data = self.all_items[item_id]
             item_type = item_data["type"]
@@ -166,9 +189,13 @@ init python:
                 # Экипируем новый предмет
                 self.equipment[item_type] = item_id
                 self.remove_item(item_id, 1)
-                return f"Экипирован: {item_data['name']}"
+                result = f"Экипирован: {item_data['name']}"
+                renpy.notify(result)
+                return result
             
-            return "Этот предмет нельзя экипировать!"
+            result = "Этот предмет нельзя экипировать!"
+            renpy.notify(result)
+            return result
         
         def unequip_item(self, slot):
             """Снимает экипированный предмет"""
@@ -176,9 +203,13 @@ init python:
                 item_id = self.equipment[slot]
                 self.add_item(item_id, 1)
                 self.equipment[slot] = None
-                return f"Снят: {self.all_items[item_id]['name']}"
+                result = f"Снят: {self.all_items[item_id]['name']}"
+                renpy.notify(result)
+                return result
             else:
-                return "В этом слоте ничего не экипировано!"
+                result = "В этом слоте ничего не экипировано!"
+                renpy.notify(result)
+                return result
         
         def get_equipment_bonuses(self):
             """Возвращает бонусы от экипировки"""

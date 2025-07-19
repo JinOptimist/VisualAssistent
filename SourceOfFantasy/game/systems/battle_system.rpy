@@ -26,6 +26,10 @@ init python:
             self.enemy_stream_attack_is_active = False
             self.enemy_stream_attack_turns = 0
             
+            # Состояние боя
+            self.battle_state = "player_turn"  # player_turn, enemy_turn, inventory_open, battle_end
+            self.saved_state = None
+            
             # Словарь с данными противников
             self.enemies = {
                 "goblin": {
@@ -50,6 +54,39 @@ init python:
                     "max_mp": 1
                 }
             }
+        
+        def save_battle_state(self):
+            """Сохраняет текущее состояние боя"""
+            self.saved_state = {
+                "battle_state": self.battle_state,
+                "player_hp": self.player_hp,
+                "player_mp": self.player_mp,
+                "player_shield": self.player_shield,
+                "player_defending": self.player_defending,
+                "enemy_hp": self.enemy_hp,
+                "enemy_mp": self.enemy_mp,
+                "enemy_shield": self.enemy_shield
+            }
+        
+        def restore_battle_state(self):
+            """Восстанавливает сохраненное состояние боя"""
+            if self.saved_state:
+                self.battle_state = self.saved_state["battle_state"]
+                self.saved_state = None
+                return True
+            return False
+        
+        def open_inventory(self):
+            """Открывает инвентарь во время боя"""
+            self.save_battle_state()
+            self.battle_state = "inventory_open"
+        
+        def close_inventory(self):
+            """Закрывает инвентарь и возвращается к бою"""
+            if self.battle_state == "inventory_open":
+                self.battle_state = "player_turn"
+                return True
+            return False
         
         def start_battle(self, enemy_type="goblin"):
             """Начинает бой с указанным противником"""
@@ -88,29 +125,28 @@ init python:
             self.enemy_stream_attack_turns = 0
         
         def add_health(self, character, amount):
-            """Безопасное добавление здоровья"""
+            """Добавление здоровья с возможностью переполнения"""
             if character == "player":
                 old_hp = self.player_hp
-                self.player_hp = min(self.player_max_hp, self.player_hp + amount)
+                self.player_hp = self.player_hp + amount
                 self.player_blood_overflow = self.player_hp > self.player_max_hp
                 return self.player_hp - old_hp
             elif character == "enemy":
                 old_hp = self.enemy_hp
-                self.enemy_hp = min(self.enemy_max_hp, self.enemy_hp + amount)
+                self.enemy_hp = self.enemy_hp + amount
                 self.enemy_blood_overflow = self.enemy_hp > self.enemy_max_hp
                 return self.enemy_hp - old_hp
         
         def add_mana(self, character, amount):
-            """Безопасное добавление маны"""
+            """Добавление маны с возможностью переполнения"""
             if character == "player":
                 old_mp = self.player_mp
-                self.player_mp = min(self.player_max_mp, self.player_mp + amount)
+                self.player_mp = self.player_mp + amount
                 self.player_mana_overflow = self.player_mp > self.player_max_mp
                 return self.player_mp - old_mp
             elif character == "enemy":
                 old_mp = self.enemy_mp
-                self.enemy_mp = min(self.enemy_max_mp, self.enemy_mp + amount)
-                self.enemy_mana_overflow = self.enemy_mp > self.enemy_max_mp
+                self.enemy_mp = self.enemy_mp + amount
                 return self.enemy_mp - old_mp
         
         def player_projectile_attack(self):
@@ -184,16 +220,11 @@ init python:
                 return f"{self.enemy_name} не может использовать атаку потоком! (требуется 2 MP)"
         
         def player_defend(self):
-            """Защита игрока"""
+            """Уклонение игрока"""
             if self.player_stream_attack_is_active:
-                return "Вы находитесь под эффектом 'Атака Потоком' и не можете защищаться!"
-            if self.player_mp >= 1:
-                self.player_shield += 1
-                self.player_mp -= 1
-                self.player_defending = True
-                return "Вы защищаетесь! Щит увеличен."
-            else:
-                return "Недостаточно маны для защиты!"
+                return "Вы находитесь под эффектом 'Атака Потоком' и не можете уклоняться!"
+            self.player_defending = True
+            return "Вы готовитесь к уклонению!"
         
         def player_shield_spell(self):
             """Создание щита игроком"""

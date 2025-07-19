@@ -24,7 +24,7 @@
 - **hp/max_hp**: Текущее/максимальное здоровье
 - **mp/max_mp**: Текущая/максимальная мана
 - **shield**: Количество щитов (изначально 0)
-- **defending**: Флаг защиты (изначально False)
+- **defending**: Флаг уклонения (изначально False)
 - **blood_overflow**: Флаг переполнения кровью (изначально False)
 - **mana_overflow**: Флаг переполнения маной (изначально False)
 - **stream_attack_is_active**: Флаг "Атака Потоком" (изначально False)
@@ -37,7 +37,7 @@
 - **player_mp**: 10 (изначально)
 - **player_max_mp**: 10 (изначально)
 - **player_shield**: 0 (изначально)
-- **player_defending**: False (изначально)
+- **player_defending**: False (флаг уклонения, изначально)
 - **player_blood_overflow**: False (изначально)
 - **player_mana_overflow**: False (изначально)
 - **player_stream_attack_is_active**: False (изначально)
@@ -74,6 +74,17 @@ def player_stream_attack():
 ```
 
 **Условия**: MP ≥ 2, противник жив, не под "Атакой Потоком"
+
+### Уклонение
+
+```python
+def player_defend():
+    # Бесплатно, только устанавливает флаг уклонения
+    self.player_defending = True
+```
+
+**Условия**: Противник жив, не под "Атакой Потоком"
+**Эффект**: Блокирует следующую атаку противника, не создает щит
 
 ### Статус "Атака Потоком"
 
@@ -114,7 +125,7 @@ def enemy_turn():
 
 - **player_projectile_attack()** — атака снарядом
 - **player_stream_attack()** — атака потоком
-- **player_defend()** — защита
+- **player_defend()** — уклонение
 - **player_shield_spell()** — создание щита
 - **player_heal()** — лечение
 

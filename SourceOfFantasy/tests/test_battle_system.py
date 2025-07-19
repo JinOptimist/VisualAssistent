@@ -169,6 +169,13 @@ class BattleSystem:
         else:
             return "Недостаточно маны для атаки потоком! (требуется 2 MP)"
     
+    def player_defend(self):
+        """Уклонение игрока"""
+        if self.player_stream_attack_is_active:
+            return "Вы находитесь под эффектом 'Атака Потоком' и не можете уклоняться!"
+        self.player_defending = True
+        return "Вы готовитесь к уклонению!"
+    
     def player_shield_spell(self):
         """Создание щита игроком"""
         if self.player_stream_attack_is_active:
@@ -383,6 +390,18 @@ class TestBattleSystem(unittest.TestCase):
         self.assertEqual(self.battle.enemy_mp, 1)
     
     # Тесты защиты и лечения
+    
+    def test_player_defend(self):
+        """Проверка уклонения"""
+        initial_player_shield = self.battle.player_shield
+        initial_player_mp = self.battle.player_mp
+        
+        result = self.battle.player_defend()
+        
+        self.assertIn("готовитесь к уклонению", result)
+        self.assertEqual(self.battle.player_shield, initial_player_shield)  # Щит не увеличивается
+        self.assertEqual(self.battle.player_mp, initial_player_mp)  # Мана не тратится
+        self.assertTrue(self.battle.player_defending)
     
     def test_player_shield_spell(self):
         """Проверка создания щита"""

@@ -1645,8 +1645,21 @@ screen battle_screen():
                 xalign 0.5
                 yalign 0.5
                 
-                # Изображение героя
-                add "images/Heroes/Hero.jpg" xsize 200 ysize 200 xalign 0.5
+                # Изображение героя и кнопка инвентаря
+                hbox:
+                    spacing 10
+                    xalign 0.5
+                    
+                    # Портрет героя
+                    add "images/Heroes/Hero.jpg" xsize 200 ysize 200
+                    
+                    # Кнопка инвентаря
+                    vbox:
+                        spacing 5
+                        yalign 0.5
+                        
+                        textbutton "🎒" action [Function(battle_system.open_inventory), Show("inventory_screen")] xsize 50 ysize 50
+                        text "Инвентарь" size 12 xalign 0.5
                 
                 # Статистика игрока
                 text "Игрок" xalign 0.5 size 24
@@ -1676,7 +1689,7 @@ screen battle_screen():
                             xalign 0.5
                             textbutton "Атака снарядом (1 MP)" action Jump("player_action_projectile_attack") xalign 0.5
                             textbutton "Атака потоком (2 MP)" action Jump("player_action_stream_attack") xalign 0.5
-                            textbutton "Защита" action Jump("player_action_defend") xalign 0.5
+                            textbutton "Уклонение (бесплатно)" action Jump("player_action_defend") xalign 0.5
                             textbutton "Создать щит" action Jump("player_action_shield") xalign 0.5
                             textbutton "Лечение" action Jump("player_action_heal") xalign 0.5
                             textbutton "Сбежать" action Jump("player_action_escape") xalign 0.5
@@ -1849,3 +1862,168 @@ style chat_sender_name:
 style chat_time:
     color "#888888"
     size 12
+
+## Экран инвентаря ###########################################################
+##
+## Экран для отображения и управления инвентарем во время боя
+
+screen inventory_screen():
+    zorder 200  # Выше боевого экрана
+    
+    # Клавиша Escape для закрытия инвентаря
+    key "K_ESCAPE" action [Function(battle_system.close_inventory), Jump("return_from_inventory")]
+    
+    frame:
+        xfill True
+        yfill True
+        background "bg BG"
+        
+        # Заголовок
+        frame:
+            xfill True
+            ysize 80
+            background Frame("gui/frame.png", 10, 10)
+            
+            hbox:
+                xalign 0.5
+                yalign 0.5
+                spacing 20
+                
+                text "🎒 ИНВЕНТАРЬ" size 32 color "#ffffff" xalign 0.5 yalign 0.5
+                text "Золото: [inventory_system.gold]" size 24 color "#ffd700" xalign 0.5 yalign 0.5
+        
+        # Основная область инвентаря
+        frame:
+            xfill True
+            ypos 80
+            ysize 600
+            background Frame("gui/frame.png", 10, 10)
+            
+            hbox:
+                spacing 20
+                xfill True
+                yfill True
+                
+                # Левая панель - список предметов
+                frame:
+                    xsize 400
+                    yfill True
+                    background Frame("gui/frame.png", 10, 10)
+                    
+                    vbox:
+                        spacing 10
+                        xfill True
+                        yfill True
+                        
+                        text "Предметы:" size 24 color "#ffffff" xalign 0.5
+                        
+                        viewport:
+                            ysize 500
+                            scrollbars "vertical"
+                            mousewheel False
+                            vbox:
+                                spacing 5
+                                xfill True
+                                
+                                for item in inventory_system.get_inventory_list():
+                                    frame:
+                                        xfill True
+                                        ysize 80
+                                        background Frame("gui/frame.png", 5, 5)
+                                        
+                                        hbox:
+                                            spacing 10
+                                            xfill True
+                                            yalign 0.5
+                                            
+                                            # Иконка предмета
+                                            frame:
+                                                xsize 60
+                                                ysize 60
+                                                background "#444444"
+                                                text "📦" xalign 0.5 yalign 0.5 size 30
+                                            
+                                            # Информация о предмете
+                                            vbox:
+                                                spacing 5
+                                                xsize 200
+                                                
+                                                text item["name"] size 18 color "#ffffff" bold True
+                                                text "Количество: [item['quantity']]" size 14 color "#cccccc"
+                                                text "Тип: [item['type']]" size 12 color "#888888"
+                                            
+                                            # Кнопки действий
+                                            vbox:
+                                                spacing 5
+                                                xsize 100
+                                                
+                                                if item["type"] == "consumable":
+                                                    textbutton "Использовать" action [Function(inventory_system.use_item, item["id"]), Function(battle_system.close_inventory), Jump("return_from_inventory")] xalign 0.5
+                                                elif item["type"] in ["weapon", "armor", "accessory"]:
+                                                    textbutton "Экипировать" action [Function(inventory_system.equip_item, item["id"]), Function(battle_system.close_inventory), Jump("return_from_inventory")] xalign 0.5
+                                                else:
+                                                    textbutton "Использовать" action [Function(inventory_system.use_item, item["id"]), Function(battle_system.close_inventory), Jump("return_from_inventory")] xalign 0.5
+                
+                # Правая панель - информация о выбранном предмете и экипировка
+                frame:
+                    xsize 400
+                    yfill True
+                    background Frame("gui/frame.png", 10, 10)
+                    
+                    vbox:
+                        spacing 15
+                        xfill True
+                        yfill True
+                        
+                        # Экипировка
+                        text "Экипировка:" size 24 color "#ffffff" xalign 0.5
+                        
+                        frame:
+                            xfill True
+                            ysize 200
+                            background Frame("gui/frame.png", 5, 5)
+                            
+                            vbox:
+                                spacing 10
+                                xfill True
+                                
+                                for slot, item in inventory_system.get_equipment_list().items():
+                                    hbox:
+                                        spacing 10
+                                        xfill True
+                                        
+                                        text "[slot.title()]: " size 16 color "#ffffff"
+                                        
+                                        if item:
+                                            text item["name"] size 16 color "#00ff00"
+                                            textbutton "Снять" action [Function(inventory_system.unequip_item, slot), Function(battle_system.close_inventory), Jump("return_from_inventory")] xalign 1.0
+                                        else:
+                                            text "Пусто" size 16 color "#888888"
+                        
+                        # Бонусы от экипировки
+                        text "Бонусы от экипировки:" size 20 color "#ffffff" xalign 0.5
+                        
+                        frame:
+                            xfill True
+                            ysize 150
+                            background Frame("gui/frame.png", 5, 5)
+                            
+                            vbox:
+                                spacing 5
+                                xfill True
+                                
+                                $ bonuses = inventory_system.get_equipment_bonuses()
+                                text "Атака: +[bonuses['attack']]" size 16 color "#ff6666"
+                                text "Магическая атака: +[bonuses['magic_attack']]" size 16 color "#6666ff"
+                                text "Защита: +[bonuses['defense']]" size 16 color "#66ff66"
+                                text "Харизма: +[bonuses['charisma']]" size 16 color "#ffff66"
+        
+        # Кнопка закрытия
+        frame:
+            xalign 0.5
+            yalign 0.95
+            xsize 200
+            ysize 60
+            background Frame("gui/frame.png", 10, 10)
+            
+            textbutton "Закрыть инвентарь" action [Function(battle_system.close_inventory), Jump("return_from_inventory")] xalign 0.5 yalign 0.5

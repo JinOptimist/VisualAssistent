@@ -13,6 +13,11 @@ label battle_scene:
 label battle_scene_goblin:
     python:
         battle_system.start_battle("goblin")
+        # Добавляем тестовые предметы в инвентарь
+        inventory_system.add_item("health_potion", 3)
+        inventory_system.add_item("mana_potion", 2)
+        inventory_system.add_item("rusty_sword", 1)
+        inventory_system.add_item("leather_armor", 1)
     scene bg BG
     "Вы встречаете гоблина в темном лесу!"
     "Маленький, но опасный противник готов к бою!"
@@ -40,6 +45,12 @@ label battle_scene_troll:
 label battle_loop:
     scene bg BG
     
+    # Проверяем состояние боя
+    if battle_system.battle_state == "inventory_open":
+        show screen inventory_screen
+        $ renpy.pause(9999, hard=True) # Ожидание закрытия инвентаря
+        jump battle_loop
+    
     # Применяем эффекты статусов в начале хода
     python:
         # Применяем эффекты переполнения
@@ -59,6 +70,11 @@ label battle_loop:
         hide screen battle_screen
         jump battle_end
     $ renpy.pause(9999, hard=True) # Ожидание действия игрока через экран
+
+# Возврат из инвентаря
+label return_from_inventory:
+    hide screen inventory_screen
+    jump battle_loop
 
 # Действия игрока (вызываются кнопками на экране)
 label player_action_projectile_attack:
@@ -200,8 +216,32 @@ label after_battle:
 # Побег из боя
 label battle_escape:
     "Вы успешно сбежали от боя!"
-    "Но ваша честь немного пострадала..."
-    jump world_map
+    "Но помните, что бегство не всегда лучший выбор..."
+    jump after_battle
+
+# Тестовый сценарий для проверки инвентаря
+label test_inventory_battle:
+    python:
+        battle_system.start_battle("goblin")
+        # Устанавливаем низкие значения для тестирования переполнения
+        battle_system.player_hp = 9  # Из 10 максимум
+        battle_system.player_mp = 9  # Из 10 максимум
+        # Добавляем разнообразные предметы для тестирования
+        inventory_system.add_item("health_potion", 5)  # +20 HP каждый
+        inventory_system.add_item("mana_potion", 5)    # +15 MP каждый
+        inventory_system.add_item("rusty_sword", 1)
+        inventory_system.add_item("iron_sword", 1)
+        inventory_system.add_item("leather_armor", 1)
+        inventory_system.add_item("iron_armor", 1)
+        inventory_system.add_item("charm_ring", 1)
+        inventory_system.add_item("magic_staff", 1)
+    
+    scene bg BG
+    "Тестовый бой для проверки инвентаря и переполнения!"
+    "У вас 9/10 HP и 9/10 MP."
+    "Попробуйте использовать зелья - они должны вызвать переполнение!"
+    "Нажмите на кнопку 🎒 рядом с портретом героя, чтобы открыть инвентарь!"
+    jump battle_loop
 
 # Меню инвентаря
 label inventory_menu:
